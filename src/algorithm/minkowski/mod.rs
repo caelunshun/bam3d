@@ -1,10 +1,10 @@
 //! Algorithms using the Minkowski Sum/Difference
 
-pub use self::epa::{EPA3, EPA};
+pub use self::epa::{EPA, EPA3};
 pub use self::gjk::{SimplexProcessor, GJK};
 
+use glam::{Mat4, Vec3};
 use std::ops::{Neg, Sub};
-use glam::{Vec3, Mat4};
 
 use crate::traits::*;
 
@@ -23,9 +23,9 @@ impl SupportPoint {
     /// Create a new support point at origin
     pub fn new() -> Self {
         Self {
-            v: Vec3::zero(),
-            sup_a: Vec3::zero(),
-            sup_b: Vec3::zero(),
+            v: Vec3::ZERO,
+            sup_a: Vec3::ZERO,
+            sup_b: Vec3::ZERO,
         }
     }
 

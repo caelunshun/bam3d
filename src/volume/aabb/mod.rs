@@ -7,7 +7,7 @@
 
 pub use self::aabb3::Aabb3;
 
-use glam::{Vec3, Mat4};
+use glam::{Mat4, Vec3};
 
 use crate::traits::Bound;
 
@@ -23,24 +23,23 @@ pub trait MinMax {
 }
 
 impl MinMax for Vec3 {
-    fn min(a: Vec3, b:Vec3) -> Vec3 {
-        Vec3::new(a.x().min(b.x()), a.y().min(b.y()), a.z().min(b.z()))
+    fn min(a: Vec3, b: Vec3) -> Vec3 {
+        Vec3::new(a.x.min(b.x), a.y.min(b.y), a.z.min(b.z))
     }
 
     fn max(a: Vec3, b: Vec3) -> Vec3 {
-        Vec3::new(a.x().max(b.x()), a.y().max(b.y()), a.z().max(b.z()))
+        Vec3::new(a.x.max(b.x), a.y.max(b.y), a.z.max(b.z))
     }
 }
 
 /// Base trait describing an axis aligned bounding box.
 pub trait Aabb: Sized {
-
     /// Create a new AABB using two points as opposing corners.
     fn new(p1: Vec3, p2: Vec3) -> Self;
 
     /// Create a new empty AABB
     fn zero() -> Self {
-        let p = Vec3::zero();
+        let p = Vec3::ZERO;
         Aabb::new(p, p)
     }
 
@@ -60,7 +59,7 @@ pub trait Aabb: Sized {
     #[inline]
     fn volume(&self) -> f32 {
         let dims = self.dim();
-        dims.x() * dims.y() * dims.z()
+        dims.x * dims.y * dims.z
     }
 
     /// Return the center point of this AABB.
@@ -99,7 +98,6 @@ pub trait Aabb: Sized {
     /// Apply an arbitrary transform to the corners of this bounding box,
     /// return a new conservative bound.
     fn transform(&self, transform: &Mat4) -> Self;
-    
 }
 
 impl<A> Bound for A

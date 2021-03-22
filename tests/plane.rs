@@ -1,8 +1,8 @@
-extern crate glam;
 extern crate bam3d;
+extern crate glam;
 
-use glam::{Vec3};
 use bam3d::*;
+use glam::Vec3;
 
 #[test]
 fn test_from_points() {
@@ -39,7 +39,8 @@ fn test_ray_intersection() {
         Vec3::new(5f32, 0f32, 5f32),
         Vec3::new(5f32, 5f32, 5f32),
         Vec3::new(5f32, 0f32, -1f32),
-    ).unwrap();
+    )
+    .unwrap();
     let r1: Ray = Ray::new(
         Vec3::new(0f32, 0f32, 0f32),
         Vec3::new(-1f32, 0f32, 0f32).normalize(),
@@ -57,12 +58,12 @@ fn test_plane2_intersection() {
     assert!(p0.intersects(&p1));
 
     let ray = ray.unwrap();
-    assert_eq!(ray.origin.x(), 1.0f32);
-    assert_eq!(ray.origin.y(), 2.0f32);
-    assert_eq!(ray.origin.z(), 0.0f32);
-    assert_eq!(ray.direction.x(), 0.0f32);
-    assert_eq!(ray.direction.y(), 0.0f32);
-    assert_eq!(ray.direction.z(), 1.0f32);
+    assert_eq!(ray.origin.x, 1.0f32);
+    assert_eq!(ray.origin.y, 2.0f32);
+    assert_eq!(ray.origin.z, 0.0f32);
+    assert_eq!(ray.direction.x, 0.0f32);
+    assert_eq!(ray.direction.y, 0.0f32);
+    assert_eq!(ray.direction.z, 1.0f32);
 
     let p0 = Plane::new(Vec3::unit_y(), 1.0f32);
     let p1 = Plane::new(Vec3::unit_y(), 2.0f32);
@@ -81,9 +82,9 @@ fn test_plane3_intersection() {
     assert!(p0.intersects(&(p1, p2)));
 
     let point = point.unwrap();
-    assert_eq!(point.x(), 1.0f32);
-    assert_eq!(point.y(), 2.0f32);
-    assert_eq!(point.z(), 3.0f32);
+    assert_eq!(point.x, 1.0f32);
+    assert_eq!(point.y, 2.0f32);
+    assert_eq!(point.z, 3.0f32);
 
     let p0 = Plane::new(Vec3::unit_y(), 1.0f32);
     let p1 = Plane::new(Vec3::unit_y(), 2.0f32);

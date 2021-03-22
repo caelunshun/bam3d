@@ -4,7 +4,11 @@
 use std::marker::PhantomData;
 
 use super::{TreeValue, Visitor};
-use crate::{frustum::Frustum, bound::{Relation, PlaneBound}, traits::*};
+use crate::{
+    bound::{PlaneBound, Relation},
+    frustum::Frustum,
+    traits::*,
+};
 
 /// Visitor for doing continuous intersection testing on the DBVT.
 ///

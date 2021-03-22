@@ -1,8 +1,8 @@
-extern crate glam;
 extern crate bam3d;
+extern crate glam;
 
-use glam::{Vec3, Mat4};
 use bam3d::{Projection, Relation, Sphere};
+use glam::{Mat4, Vec3};
 
 #[test]
 fn test_contains() {

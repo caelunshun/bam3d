@@ -1,6 +1,6 @@
 //! Generic 3d rays
-use glam::{Vec3, Mat4};
 use crate::traits::{Continuous, ContinuousTransformed, Discrete, DiscreteTransformed};
+use glam::{Mat4, Vec3};
 
 /// A generic ray starting at `origin` and extending infinitely in
 /// `direction`.
@@ -16,10 +16,7 @@ impl Ray {
     /// Create a generic ray starting at `origin` and extending infinitely in
     /// `direction`.
     pub fn new(origin: Vec3, direction: Vec3) -> Ray {
-        Ray {
-            origin,
-            direction,
-        }
+        Ray { origin, direction }
     }
 
     /// Create a new ray by applying a transform.
@@ -29,7 +26,6 @@ impl Ray {
             transform.transform_vector3(self.direction),
         )
     }
-
 }
 
 impl Continuous<Ray> for Vec3 {
@@ -50,16 +46,14 @@ impl Discrete<Ray> for Vec3 {
         let p = *self;
         let l = p - ray.origin;
         let tca = l.dot(ray.direction);
-        tca > 0.
-            && (((tca * tca) - l.dot(l)).abs() < std::f32::EPSILON)
+        tca > 0. && (((tca * tca) - l.dot(l)).abs() < std::f32::EPSILON)
     }
 }
 
 impl<C> DiscreteTransformed<Ray> for C
 where
-    C: Discrete<Ray>, 
+    C: Discrete<Ray>,
 {
-
     fn intersects_transformed(&self, ray: &Ray, transform: &Mat4) -> bool {
         self.intersects(&ray.transform(transform.inverse()))
     }
@@ -69,9 +63,7 @@ impl<C> ContinuousTransformed<Ray> for C
 where
     C: Continuous<Ray, Result = Vec3>,
 {
-
     fn intersection_transformed(&self, ray: &Ray, transform: &Mat4) -> Option<Vec3> {
-
         self.intersection(&ray.transform(transform.inverse()))
             .map(|p| transform.transform_point3(p))
     }

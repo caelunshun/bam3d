@@ -7,17 +7,11 @@ use crate::primitive::util::{barycentric_vector, get_closest_point_on_edge};
 
 /// Simplex processor implementation for 3D. Only to be used in [`GJK`](struct.GJK.html).
 #[derive(Debug)]
-pub struct SimplexProcessor3 {
-}
+pub struct SimplexProcessor3 {}
 
 #[allow(clippy::many_single_char_names)]
 impl SimplexProcessor for SimplexProcessor3 {
-
-    fn reduce_to_closest_feature(
-        &self,
-        simplex: &mut Simplex,
-        v: &mut Vec3,
-    ) -> bool {
+    fn reduce_to_closest_feature(&self, simplex: &mut Simplex, v: &mut Vec3) -> bool {
         // 4 points, full tetrahedron, origin could be inside
         if simplex.len() == 4 {
             let a = simplex[3].v;
@@ -81,8 +75,8 @@ impl SimplexProcessor for SimplexProcessor3 {
             let ab = b - a;
 
             *v = cross_aba(&ab, &ao);
-            if v.cmpeq(Vec3::zero()).all() {
-                v.set_x(0.1);
+            if v.cmpeq(Vec3::ZERO).all() {
+                v.x = 0.1;
             }
         }
         // 0-1 points
@@ -93,7 +87,7 @@ impl SimplexProcessor for SimplexProcessor3 {
     ///
     /// Make simplex only retain the closest feature to the origin.
     fn get_closest_point_to_origin(&self, simplex: &mut Simplex) -> Vec3 {
-        let mut d = Vec3::zero();
+        let mut d = Vec3::ZERO;
 
         // reduce simplex to the closest feature to the origin
         // if check_origin return true, the origin is inside the simplex, so return the zero vector
@@ -106,7 +100,7 @@ impl SimplexProcessor for SimplexProcessor3 {
         if simplex.len() == 1 {
             simplex[0].v
         } else if simplex.len() == 2 {
-            get_closest_point_on_edge(&simplex[1].v, &simplex[0].v, &Vec3::zero())
+            get_closest_point_on_edge(&simplex[1].v, &simplex[0].v, &Vec3::ZERO)
         } else {
             get_closest_point_on_face(&simplex[2].v, &simplex[1].v, &simplex[0].v, &d)
         }
@@ -119,17 +113,12 @@ impl SimplexProcessor for SimplexProcessor3 {
 
 #[allow(clippy::many_single_char_names)]
 #[inline]
-fn get_closest_point_on_face(
-    a: &Vec3,
-    b: &Vec3,
-    c: &Vec3,
-    normal: &Vec3,
-) -> Vec3 {
-    use crate::{traits::Continuous, plane::Plane, ray::Ray};
+fn get_closest_point_on_face(a: &Vec3, b: &Vec3, c: &Vec3, normal: &Vec3) -> Vec3 {
+    use crate::{plane::Plane, ray::Ray, traits::Continuous};
     let ap = *a;
     let bp = *b;
     let cp = *c;
-    let ray = Ray::new(Vec3::zero(), -*normal);
+    let ray = Ray::new(Vec3::ZERO, -*normal);
     // unwrapping is safe, because the degenerate face will have been removed by the outer algorithm
     let plane = Plane::from_points(ap, bp, cp).unwrap();
     match plane.intersection(&ray) {
@@ -144,7 +133,7 @@ fn get_closest_point_on_face(
             point
         }
 
-        _ => Vec3::zero(),
+        _ => Vec3::ZERO,
     }
 }
 
@@ -215,9 +204,9 @@ mod tests {
         let v = test_check_side(&mut simplex, false, false);
         assert_eq!(2, simplex.len());
         assert_eq!(Vec3::new(-1., -10., 0.), simplex[0].v); // B should be last in the simplex
-        assert_eq!(-375., v.x());
-        assert_eq!(100., v.y());
-        assert_eq!(0., v.z());
+        assert_eq!(-375., v.x);
+        assert_eq!(100., v.y);
+        assert_eq!(0., v.z);
     }
 
     #[test]
@@ -226,9 +215,9 @@ mod tests {
         let v = test_check_side(&mut simplex, false, false);
         assert_eq!(2, simplex.len());
         assert_eq!(Vec3::new(2., -10., 0.), simplex[0].v); // C should be last in the simplex
-        assert_eq!(300., v.x());
-        assert_eq!(100., v.y());
-        assert_eq!(0., v.z());
+        assert_eq!(300., v.x);
+        assert_eq!(100., v.y);
+        assert_eq!(0., v.z);
     }
 
     #[test]
@@ -237,9 +226,9 @@ mod tests {
         let v = test_check_side(&mut simplex, false, false);
         assert_eq!(3, simplex.len());
         assert_eq!(Vec3::new(5., -10., -1.), simplex[0].v); // C should be last in the simplex
-        assert_eq!(0., v.x());
-        assert_eq!(0., v.y());
-        assert_eq!(135., v.z());
+        assert_eq!(0., v.x);
+        assert_eq!(0., v.y);
+        assert_eq!(135., v.z);
     }
 
     #[test]
@@ -248,9 +237,9 @@ mod tests {
         let v = test_check_side(&mut simplex, false, false);
         assert_eq!(3, simplex.len());
         assert_eq!(Vec3::new(-4., -10., 1.), simplex[0].v); // B should be last in the simplex
-        assert_eq!(0., v.x());
-        assert_eq!(0., v.y());
-        assert_eq!(-135., v.z());
+        assert_eq!(0., v.x);
+        assert_eq!(0., v.y);
+        assert_eq!(-135., v.z);
     }
 
     #[test]
@@ -259,7 +248,7 @@ mod tests {
         let (hit, v) = test_check_origin(&mut simplex);
         assert!(!hit);
         assert!(simplex.is_empty());
-        assert!(Vec3::zero().cmpeq(v).all())
+        assert!(Vec3::ZERO.cmpeq(v).all())
     }
 
     #[test]
@@ -268,7 +257,7 @@ mod tests {
         let (hit, v) = test_check_origin(&mut simplex);
         assert!(!hit);
         assert_eq!(1, simplex.len());
-        assert!(Vec3::zero().cmpeq(v).all());
+        assert!(Vec3::ZERO.cmpeq(v).all());
     }
 
     #[test]
@@ -352,21 +341,17 @@ mod tests {
     }
 
     fn test_check_origin(simplex: &mut Simplex) -> (bool, Vec3) {
-        let mut v = Vec3::zero();
+        let mut v = Vec3::ZERO;
         let b = SimplexProcessor3::new().reduce_to_closest_feature(simplex, &mut v);
         (b, v)
     }
 
-    fn test_check_side(
-        simplex: &mut Simplex,
-        above: bool,
-        ignore: bool,
-    ) -> Vec3 {
+    fn test_check_side(simplex: &mut Simplex, above: bool, ignore: bool) -> Vec3 {
         let ab = simplex[1].v - simplex[2].v;
         let ac = simplex[0].v - simplex[2].v;
         let ao = simplex[2].v.neg();
         let abc = ab.cross(ac);
-        let mut v = Vec3::zero();
+        let mut v = Vec3::ZERO;
         check_side(&abc, &ab, &ac, &ao, simplex, &mut v, above, ignore);
         v
     }

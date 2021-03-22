@@ -6,11 +6,11 @@ pub use self::simplex::SimplexProcessor;
 use std::cmp::Ordering;
 use std::ops::{Neg, Range};
 
-use glam::{Vec3, Mat4};
+use glam::{Mat4, Vec3};
 
 use self::simplex::{Simplex, SimplexProcessor3};
+use crate::algorithm::minkowski::{SupportPoint, EPA, EPA3};
 use crate::contact::{CollisionStrategy, Contact};
-use crate::algorithm::minkowski::{EPA3, SupportPoint, EPA};
 use crate::traits::*;
 
 mod simplex;
@@ -21,7 +21,7 @@ const GJK_CONTINUOUS_TOLERANCE: f32 = 0.000_001;
 
 /// Gilbert-Johnson-Keerthi narrow phase collision detection algorithm.
 #[derive(Debug)]
-pub struct GJK{
+pub struct GJK {
     simplex_processor: SimplexProcessor3,
     epa: EPA3,
     distance_tolerance: f32,
@@ -82,10 +82,10 @@ impl GJK {
         PL: Primitive,
         PR: Primitive,
     {
-        let left_pos = left_transform.transform_point3(Vec3::zero());
-        let right_pos = right_transform.transform_point3(Vec3::zero());
+        let left_pos = left_transform.transform_point3(Vec3::ZERO);
+        let right_pos = right_transform.transform_point3(Vec3::ZERO);
         let mut d = right_pos - left_pos;
-        if d.cmpeq(Vec3::zero()).all() {
+        if d.cmpeq(Vec3::ZERO).all() {
             d = Vec3::splat(1.);
         }
         let a = SupportPoint::from_minkowski(left, left_transform, right, right_transform, &d);
@@ -101,7 +101,8 @@ impl GJK {
                 return None;
             } else {
                 simplex.push(a);
-                if self.simplex_processor
+                if self
+                    .simplex_processor
                     .reduce_to_closest_feature(&mut simplex, &mut d)
                 {
                     return Some(simplex);
@@ -139,16 +140,16 @@ impl GJK {
         PR: Primitive,
     {
         // build the ray, A.velocity - B.velocity is the ray direction
-        let left_lin_vel = left_transform.end.transform_point3(Vec3::zero())
-            - left_transform.start.transform_point3(Vec3::zero());
-        let right_lin_vel = right_transform.end.transform_point3(Vec3::zero())
-            - right_transform.start.transform_point3(Vec3::zero());
+        let left_lin_vel = left_transform.end.transform_point3(Vec3::ZERO)
+            - left_transform.start.transform_point3(Vec3::ZERO);
+        let right_lin_vel = right_transform.end.transform_point3(Vec3::ZERO)
+            - right_transform.start.transform_point3(Vec3::ZERO);
         let ray = right_lin_vel - left_lin_vel;
 
         // initialize time of impact
         let mut lambda = 0.;
-        let mut normal = Vec3::zero();
-        let mut ray_origin = Vec3::zero();
+        let mut normal = Vec3::ZERO;
+        let mut ray_origin = Vec3::ZERO;
 
         // build simplex and get an initial support point to bootstrap the algorithm
         let mut simplex = Simplex::new();
@@ -196,7 +197,8 @@ impl GJK {
             }
             // we construct the simplex around the current ray origin (if we can)
             simplex.push(p - ray_origin);
-            v = self.simplex_processor
+            v = self
+                .simplex_processor
                 .get_closest_point_to_origin(&mut simplex);
         }
         if v.dot(v) <= self.continuous_tolerance {
@@ -206,7 +208,7 @@ impl GJK {
             let mut contact = Contact::new_with_point(
                 CollisionStrategy::FullResolution,
                 -normal.normalize(), // our convention is normal points from B towards A
-                (v.dot(v)).sqrt(),       // will always be very close to zero
+                (v.dot(v)).sqrt(),   // will always be very close to zero
                 transform.transform_point3(ray_origin),
             );
             contact.time_of_impact = lambda;
@@ -240,13 +242,14 @@ impl GJK {
         PL: Primitive,
         PR: Primitive,
     {
-        let right_pos = right_transform.transform_point3(Vec3::zero());
-        let left_pos = left_transform.transform_point3(Vec3::zero());
+        let right_pos = right_transform.transform_point3(Vec3::ZERO);
+        let left_pos = left_transform.transform_point3(Vec3::ZERO);
         let mut simplex = Simplex::new();
         let mut d = right_pos - left_pos;
-        if (d.x() - 0.).abs() < f32::EPSILON &&
-        (d.y() - 0.).abs() < f32::EPSILON &&
-        (d.z() - 0.).abs() < f32::EPSILON {
+        if (d.x - 0.).abs() < f32::EPSILON
+            && (d.y - 0.).abs() < f32::EPSILON
+            && (d.z - 0.).abs() < f32::EPSILON
+        {
             d = Vec3::splat(1.);
         }
         for d in &[d, d.neg()] {
@@ -259,11 +262,13 @@ impl GJK {
             ));
         }
         for _ in 0..self.max_iterations {
-            let d = self.simplex_processor
+            let d = self
+                .simplex_processor
                 .get_closest_point_to_origin(&mut simplex);
-            if (d.x() - 0.).abs() < f32::EPSILON &&
-            (d.y() - 0.).abs() < f32::EPSILON &&
-            (d.z() - 0.).abs() < f32::EPSILON {
+            if (d.x - 0.).abs() < f32::EPSILON
+                && (d.y - 0.).abs() < f32::EPSILON
+                && (d.z - 0.).abs() < f32::EPSILON
+            {
                 return None;
             }
             let d = d.neg();
@@ -529,20 +534,14 @@ impl Default for GJK {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use glam::{Vec3, Quat};
     use crate::primitive::{Cuboid, Sphere};
-    
+    use glam::{Quat, Vec3};
+
     use super::*;
 
-    fn transform_3d(
-        x: f32,
-        y: f32,
-        z: f32,
-        angle_z: f32,
-    ) -> Mat4 {
+    fn transform_3d(x: f32, y: f32, z: f32, angle_z: f32) -> Mat4 {
         let scale = Vec3::splat(1.);
         let rot = Quat::from_rotation_z(angle_z.to_radians());
         let tran = Vec3::new(x, y, z);
@@ -623,23 +622,27 @@ mod tests {
         let right_transform = transform_3d(15., 0., 0., 0.);
         let gjk = GJK::new();
 
-        let contact = gjk.intersection_time_of_impact(
-            &left,
-            &left_start_transform..&left_end_transform,
-            &right,
-            &right_transform..&right_transform,
-        ).unwrap();
+        let contact = gjk
+            .intersection_time_of_impact(
+                &left,
+                &left_start_transform..&left_end_transform,
+                &right,
+                &right_transform..&right_transform,
+            )
+            .unwrap();
 
         assert_eq!(0.166_666_67, contact.time_of_impact);
         assert_eq!(Vec3::new(-1., 0., 0.), contact.normal);
         assert_eq!(0., contact.penetration_depth);
         assert_eq!(Vec3::new(10., 0., 0.), contact.contact_point);
 
-        assert!(gjk.intersection_time_of_impact(
-            &left,
-            &left_start_transform..&left_start_transform,
-            &right,
-            &right_transform..&right_transform
-        ).is_none());
+        assert!(gjk
+            .intersection_time_of_impact(
+                &left,
+                &left_start_transform..&left_start_transform,
+                &right,
+                &right_transform..&right_transform
+            )
+            .is_none());
     }
 }

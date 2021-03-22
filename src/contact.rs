@@ -1,6 +1,6 @@
 //! Collision contact manifold
 
-use glam::{Vec3};
+use glam::Vec3;
 
 /// Collision strategy to use for collisions.
 ///
@@ -40,16 +40,12 @@ pub struct Contact {
 impl Contact {
     /// Create a new contact manifold, with default collision normal and penetration depth
     pub fn new(strategy: CollisionStrategy) -> Self {
-        Self::new_impl(strategy, Vec3::zero(), 0.)
+        Self::new_impl(strategy, Vec3::ZERO, 0.)
     }
 
     /// Create a new contact manifold, with the given collision normal and penetration depth
-    pub fn new_impl(
-        strategy: CollisionStrategy,
-        normal: Vec3,
-        penetration_depth:f32,
-    ) -> Self {
-        Self::new_with_point(strategy, normal, penetration_depth, Vec3::zero())
+    pub fn new_impl(strategy: CollisionStrategy, normal: Vec3, penetration_depth: f32) -> Self {
+        Self::new_with_point(strategy, normal, penetration_depth, Vec3::ZERO)
     }
 
     /// Create a new contact manifold, complete with contact point

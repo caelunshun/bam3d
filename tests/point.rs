@@ -1,8 +1,8 @@
-extern crate glam;
 extern crate bam3d;
+extern crate glam;
 
-use glam::{Vec3};
 use bam3d::{Continuous, Plane, PlaneBound, Ray, Relation};
+use glam::Vec3;
 
 #[test]
 fn test_bound() {

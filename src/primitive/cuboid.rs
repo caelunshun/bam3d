@@ -1,9 +1,9 @@
-use glam::{Vec3, Mat4};
+use glam::{Mat4, Vec3};
 
-use crate::{ray::Ray, Aabb3};
 use crate::primitive::util::get_max_point;
-use crate::volume::Sphere;
 use crate::traits::*;
+use crate::volume::Sphere;
+use crate::{ray::Ray, Aabb3};
 
 /// Cuboid primitive.
 ///
@@ -45,14 +45,14 @@ impl Cuboid {
 
     fn generate_corners(half_dim: &Vec3) -> [Vec3; 8] {
         [
-            Vec3::new(half_dim.x(), half_dim.y(), half_dim.z()),
-            Vec3::new(-half_dim.x(), half_dim.y(), half_dim.z()),
-            Vec3::new(-half_dim.x(), -half_dim.y(), half_dim.z()),
-            Vec3::new(half_dim.x(), -half_dim.y(), half_dim.z()),
-            Vec3::new(half_dim.x(), half_dim.y(), -half_dim.z()),
-            Vec3::new(-half_dim.x(), half_dim.y(), -half_dim.z()),
-            Vec3::new(-half_dim.x(), -half_dim.y(), -half_dim.z()),
-            Vec3::new(half_dim.x(), -half_dim.y(), -half_dim.z()),
+            Vec3::new(half_dim.x, half_dim.y, half_dim.z),
+            Vec3::new(-half_dim.x, half_dim.y, half_dim.z),
+            Vec3::new(-half_dim.x, -half_dim.y, half_dim.z),
+            Vec3::new(half_dim.x, -half_dim.y, half_dim.z),
+            Vec3::new(half_dim.x, half_dim.y, -half_dim.z),
+            Vec3::new(-half_dim.x, half_dim.y, -half_dim.z),
+            Vec3::new(-half_dim.x, -half_dim.y, -half_dim.z),
+            Vec3::new(half_dim.x, -half_dim.y, -half_dim.z),
         ]
     }
 }
@@ -65,18 +65,15 @@ impl Primitive for Cuboid {
 
 impl ComputeBound<Aabb3> for Cuboid {
     fn compute_bound(&self) -> Aabb3 {
-        Aabb3::new(
-            -self.half_dim,
-            self.half_dim,
-        )
+        Aabb3::new(-self.half_dim, self.half_dim)
     }
 }
 
 impl ComputeBound<Sphere> for Cuboid {
     fn compute_bound(&self) -> Sphere {
-        let max = self.half_dim.x().max(self.half_dim.y()).max(self.half_dim.z());
+        let max = self.half_dim.x.max(self.half_dim.y).max(self.half_dim.z);
         Sphere {
-            center: Vec3::zero(),
+            center: Vec3::ZERO,
             radius: max,
         }
     }
@@ -84,10 +81,7 @@ impl ComputeBound<Sphere> for Cuboid {
 
 impl Discrete<Ray> for Cuboid {
     fn intersects(&self, ray: &Ray) -> bool {
-        Aabb3::new(
-            -self.half_dim,
-            self.half_dim,
-        ).intersects(ray)
+        Aabb3::new(-self.half_dim, self.half_dim).intersects(ray)
     }
 }
 
@@ -95,10 +89,7 @@ impl Continuous<Ray> for Cuboid {
     type Result = Vec3;
 
     fn intersection(&self, ray: &Ray) -> Option<Vec3> {
-        Aabb3::new(
-            -self.half_dim,
-            self.half_dim,
-        ).intersection(ray)
+        Aabb3::new(-self.half_dim, self.half_dim).intersection(ray)
     }
 }
 
@@ -121,12 +112,12 @@ impl Cube {
 
     /// Get the dimension of the cube
     pub fn dim(&self) -> f32 {
-        self.cuboid.dim.x()
+        self.cuboid.dim.x
     }
 
     /// Get the half dimension of the cube
     pub fn half_dim(&self) -> f32 {
-        self.cuboid.half_dim.x()
+        self.cuboid.half_dim.x
     }
 }
 
@@ -165,8 +156,8 @@ impl Continuous<Ray> for Cube {
 #[cfg(test)]
 mod tests {
 
-    use glam::{Vec3, Mat4, Quat};
     use crate::traits::*;
+    use glam::{Mat4, Quat, Vec3};
 
     use super::*;
 
@@ -221,9 +212,9 @@ mod tests {
         let ray = Ray::new(Vec3::new(10., 0., 0.), Vec3::new(-1., 0., 0.));
         let t = transform(0., 0., 0., 0.3);
         let p = cuboid.intersection_transformed(&ray, &t).unwrap();
-        assert!((p.x() - 5.000068).abs() < std::f32::EPSILON);
-        assert!((p.y() - 0.).abs() < std::f32::EPSILON);
-        assert!((p.z() - 0.).abs() < std::f32::EPSILON);
+        assert!((p.x - 5.000068).abs() < std::f32::EPSILON);
+        assert!((p.y - 0.).abs() < std::f32::EPSILON);
+        assert!((p.z - 0.).abs() < std::f32::EPSILON);
     }
 
     // util

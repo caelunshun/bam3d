@@ -4,7 +4,7 @@ pub use self::epa3d::EPA3;
 
 mod epa3d;
 
-use glam::{Mat4};
+use glam::Mat4;
 
 use super::SupportPoint;
 use crate::{contact::Contact, traits::Primitive};
@@ -36,8 +36,5 @@ pub trait EPA {
     fn new() -> Self;
 
     /// Create a new EPA instance with the given tolerance
-    fn new_with_tolerance(
-        tolerance: f32,
-        max_iterations: u32,
-    ) -> Self;
+    fn new_with_tolerance(tolerance: f32, max_iterations: u32) -> Self;
 }

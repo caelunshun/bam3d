@@ -14,9 +14,6 @@ pub struct Line {
 impl Line {
     /// Create a new directed line segment from `origin` to `dest`.
     pub fn new(origin: Vec3, dest: Vec3) -> Line {
-        Line {
-            origin,
-            dest,
-        }
+        Line { origin, dest }
     }
 }

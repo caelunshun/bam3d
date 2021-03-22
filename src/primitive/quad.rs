@@ -1,9 +1,9 @@
 //! Rectangular plane primitive
 
-use glam::{Vec2, Vec3, Mat4};
+use glam::{Mat4, Vec2, Vec3};
 
-use crate::{Aabb3, ray::Ray, volume::Sphere, traits::*};
 use crate::primitive::util::get_max_point;
+use crate::{ray::Ray, traits::*, volume::Sphere, Aabb3};
 
 /// Rectangular plane primitive. Will lie on the xy plane when not transformed.
 ///
@@ -45,10 +45,10 @@ impl Quad {
 
     fn generate_corners(half_dim: &Vec2) -> [Vec3; 4] {
         [
-            Vec3::new(half_dim.x(), half_dim.y(), 0.),
-            Vec3::new(-half_dim.x(), half_dim.y(), 0.),
-            Vec3::new(-half_dim.x(), -half_dim.y(), 0.),
-            Vec3::new(half_dim.x(), -half_dim.y(), 0.),
+            Vec3::new(half_dim.x, half_dim.y, 0.),
+            Vec3::new(-half_dim.x, half_dim.y, 0.),
+            Vec3::new(-half_dim.x, -half_dim.y, 0.),
+            Vec3::new(half_dim.x, -half_dim.y, 0.),
         ]
     }
 }
@@ -62,8 +62,8 @@ impl Primitive for Quad {
 impl ComputeBound<Aabb3> for Quad {
     fn compute_bound(&self) -> Aabb3 {
         Aabb3::new(
-            Vec3::new(-self.half_dim.x(), -self.half_dim.y(), 0.),
-            Vec3::new(self.half_dim.x(), self.half_dim.y(), 0.),
+            Vec3::new(-self.half_dim.x, -self.half_dim.y, 0.),
+            Vec3::new(self.half_dim.x, self.half_dim.y, 0.),
         )
     }
 }
@@ -71,8 +71,8 @@ impl ComputeBound<Aabb3> for Quad {
 impl ComputeBound<Sphere> for Quad {
     fn compute_bound(&self) -> Sphere {
         Sphere {
-            center: Vec3::zero(),
-            radius: self.half_dim.x().max(self.half_dim.y()),
+            center: Vec3::ZERO,
+            radius: self.half_dim.x.max(self.half_dim.y),
         }
     }
 }
@@ -100,8 +100,8 @@ mod tests {
 
     use super::*;
     use crate::algorithm::minkowski::GJK;
-    use glam::{Vec3, Mat4, Quat};
     use crate::primitive::Cuboid;
+    use glam::{Mat4, Quat, Vec3};
 
     fn transform(x: f32, y: f32, z: f32) -> Mat4 {
         let scale = Vec3::splat(1.);
@@ -117,9 +117,8 @@ mod tests {
         let transform_1 = transform(0., 0., 1.);
         let transform_2 = transform(0., 0., 1.1);
         let gjk = GJK::new();
-        assert!(
-            gjk.intersect(&quad, &transform_1, &cuboid, &transform_2)
-                .is_some()
-        );
+        assert!(gjk
+            .intersect(&quad, &transform_1, &cuboid, &transform_2)
+            .is_some());
     }
 }

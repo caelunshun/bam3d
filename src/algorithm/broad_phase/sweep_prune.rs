@@ -2,7 +2,7 @@ pub use self::variance::Variance;
 
 use std::cmp::Ordering;
 
-use self::variance::{Variance3};
+use self::variance::Variance3;
 use crate::traits::*;
 
 /// Broad phase sweep and prune algorithm for 3D, see
@@ -120,8 +120,7 @@ where
         }
 
         // compute sweep axis for the next iteration
-        let (axis, _) = self.variance
-            .compute_axis(shapes.len() as f32);
+        let (axis, _) = self.variance.compute_axis(shapes.len() as f32);
         self.sweep_axis = axis;
 
         pairs
@@ -158,7 +157,7 @@ mod variance {
         fn add_bound(&mut self, bound: &Self::Bound);
 
         /// Compute the sweep axis based on the internal values
-        fn compute_axis(&self, n: f32 ) -> (usize, f32);
+        fn compute_axis(&self, n: f32) -> (usize, f32);
     }
 
     /// Variance for 3D sweep and prune
@@ -177,15 +176,15 @@ mod variance {
 
         fn new() -> Self {
             Self {
-                csum: Vec3::zero(),
-                csumsq: Vec3::zero(),
+                csum: Vec3::ZERO,
+                csumsq: Vec3::ZERO,
                 m: marker::PhantomData,
             }
         }
 
         fn clear(&mut self) {
-            self.csum = Vec3::zero();
-            self.csumsq = Vec3::zero();
+            self.csum = Vec3::ZERO;
+            self.csumsq = Vec3::ZERO;
         }
 
         #[inline]

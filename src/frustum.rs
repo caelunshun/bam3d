@@ -1,7 +1,7 @@
 //! View frustum for visibility determination
 
-use crate::plane::Plane;
 use crate::bound::{PlaneBound, Relation};
+use crate::plane::Plane;
 use glam::{Mat4, Vec3};
 
 /// View frustum, used for frustum culling
@@ -47,27 +47,27 @@ impl Frustum {
         // to get rows instead of columns
         let mat = &matrix.transpose();
         Some(Frustum::new(
-            match Plane::from_vector4_alt(mat.w_axis() + mat.x_axis()).normalize() {
+            match Plane::from_vector4_alt(mat.w_axis + mat.x_axis).normalize() {
                 Some(p) => p,
                 None => return None,
             },
-            match Plane::from_vector4_alt(mat.w_axis() - mat.x_axis()).normalize() {
+            match Plane::from_vector4_alt(mat.w_axis - mat.x_axis).normalize() {
                 Some(p) => p,
                 None => return None,
             },
-            match Plane::from_vector4_alt(mat.w_axis() + mat.y_axis()).normalize() {
+            match Plane::from_vector4_alt(mat.w_axis + mat.y_axis).normalize() {
                 Some(p) => p,
                 None => return None,
             },
-            match Plane::from_vector4_alt(mat.w_axis() - mat.y_axis()).normalize() {
+            match Plane::from_vector4_alt(mat.w_axis - mat.y_axis).normalize() {
                 Some(p) => p,
                 None => return None,
             },
-            match Plane::from_vector4_alt(mat.w_axis() + mat.x_axis()).normalize() {
+            match Plane::from_vector4_alt(mat.w_axis + mat.x_axis).normalize() {
                 Some(p) => p,
                 None => return None,
             },
-            match Plane::from_vector4_alt(mat.w_axis() - mat.x_axis()).normalize() {
+            match Plane::from_vector4_alt(mat.w_axis - mat.x_axis).normalize() {
                 Some(p) => p,
                 None => return None,
             },
@@ -83,15 +83,16 @@ impl Frustum {
             self.bottom,
             self.near,
             self.far,
-        ].iter()
-            .fold(Relation::In, |cur, p| {
-                use std::cmp::max;
-                let r = bound.relate_plane(*p);
-                // If any of the planes are `Out`, the bound is outside.
-                // Otherwise, if any are `Cross`, the bound is crossing.
-                // Otherwise, the bound is fully inside.
-                max(cur, r)
-            })
+        ]
+        .iter()
+        .fold(Relation::In, |cur, p| {
+            use std::cmp::max;
+            let r = bound.relate_plane(*p);
+            // If any of the planes are `Out`, the bound is outside.
+            // Otherwise, if any are `Cross`, the bound is crossing.
+            // Otherwise, the bound is fully inside.
+            max(cur, r)
+        })
     }
 }
 

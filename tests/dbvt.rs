@@ -1,11 +1,11 @@
-extern crate glam;
 extern crate bam3d;
+extern crate glam;
 extern crate rand;
 
-use glam::{Vec3, Mat4};
-use bam3d::{Aabb3, Frustum, Projection, Relation};
 use bam3d::dbvt::*;
 use bam3d::prelude::*;
+use bam3d::{Aabb3, Frustum, Projection, Relation};
+use glam::{Mat4, Vec3};
 
 #[derive(Debug, Clone)]
 struct Value3 {

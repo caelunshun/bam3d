@@ -3,7 +3,7 @@ use std::fmt::Debug;
 use glam::Vec3;
 
 use super::TreeValue;
-use crate::{traits::*};
+use crate::traits::*;
 
 /// Value together with bounding volume, for use with DBVT.
 #[derive(Debug, Clone)]
@@ -61,7 +61,6 @@ where
     }
 }
 
-
 impl<V, B> From<(V, B, Vec3)> for TreeValueWrapped<V, B>
 where
     B: Bound + Clone,
@@ -76,10 +75,6 @@ where
     B: Bound + Clone,
 {
     fn from((value, bound): (V, B)) -> Self {
-        Self::new(
-            value,
-            bound,
-            Vec3::zero(),
-        )
+        Self::new(value, bound, Vec3::ZERO)
     }
 }

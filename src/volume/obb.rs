@@ -21,7 +21,7 @@ impl Obb {
         Self {
             center,
             axis,
-            extents
+            extents,
         }
     }
 }

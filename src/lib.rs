@@ -22,18 +22,18 @@ pub use ray::*;
 pub use traits::*;
 pub use volume::*;
 
-pub mod prelude;
-pub mod dbvt;
-pub mod primitive;
 pub mod algorithm;
+pub mod dbvt;
+pub mod prelude;
+pub mod primitive;
 
 // Modules
 
 mod bound;
+mod contact;
 mod frustum;
-mod traits;
+mod line;
 mod plane;
 mod ray;
-mod line;
+mod traits;
 mod volume;
-mod contact;

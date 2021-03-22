@@ -1,4 +1,4 @@
-use glam::{Vec3, Mat4};
+use glam::{Mat4, Vec3};
 
 /// An intersection test with a result.
 ///
@@ -43,7 +43,6 @@ pub trait Union<RHS = Self> {
 
 /// Bounding volume abstraction for use with algorithms
 pub trait Bound {
-
     /// Minimum extents of the bounding volume
     fn min_extent(&self) -> Vec3;
     /// Maximum extents of the bounding volume
@@ -92,16 +91,11 @@ pub trait Primitive {
     /// ## Type parameters
     ///
     /// - `P`: Transform type
-    fn support_point(
-        &self,
-        direction: &Vec3,
-        transform: &Mat4,
-    ) -> Vec3;
+    fn support_point(&self, direction: &Vec3, transform: &Mat4) -> Vec3;
 }
 
 /// Discrete intersection test on transformed primitive
 pub trait DiscreteTransformed<RHS> {
-
     /// Intersection test for transformed self
     fn intersects_transformed(&self, _: &RHS, _: &Mat4) -> bool;
 }
@@ -166,8 +160,10 @@ mod interpolate {
 
     impl Interpolate for Mat4 {
         fn interpolate(&self, other: &Self, amount: f32) -> Self {
-            let (self_scale, self_rotation, self_translation) = self.to_scale_rotation_translation();
-            let (other_scale, other_rotation, other_translation) = other.to_scale_rotation_translation();
+            let (self_scale, self_rotation, self_translation) =
+                self.to_scale_rotation_translation();
+            let (other_scale, other_rotation, other_translation) =
+                other.to_scale_rotation_translation();
 
             let scale = self_scale * (1.0 - amount) + other_scale * amount;
             let rotation = self_rotation.interpolate(&other_rotation, amount);
@@ -177,10 +173,12 @@ mod interpolate {
         }
     }
 
-    impl TranslationInterpolate for Mat4{
+    impl TranslationInterpolate for Mat4 {
         fn translation_interpolate(&self, other: &Self, amount: f32) -> Self {
-            let (_self_scale, _self_rotation, self_translation) = self.to_scale_rotation_translation();
-            let (other_scale, other_rotation, other_translation) = other.to_scale_rotation_translation();
+            let (_self_scale, _self_rotation, self_translation) =
+                self.to_scale_rotation_translation();
+            let (other_scale, other_rotation, other_translation) =
+                other.to_scale_rotation_translation();
 
             let scale = other_scale;
             let rotation = other_rotation;

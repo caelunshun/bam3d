@@ -1,17 +1,14 @@
-extern crate glam;
 extern crate bam3d;
+extern crate glam;
 
-use glam::{Vec3, Mat4, Quat};
 use bam3d::{Aabb, Aabb3};
 use bam3d::{Contains, Continuous, Discrete, SurfaceArea, Union};
-use bam3d::{Plane, PlaneBound, Ray, Sphere, Relation, Line};
+use bam3d::{Line, Plane, PlaneBound, Ray, Relation, Sphere};
+use glam::{Mat4, Quat, Vec3};
 
 #[test]
 fn test_general() {
-    let aabb = Aabb3::new(
-        Vec3::new(-20., 30., 5.),
-        Vec3::new(10., -10., -5.),
-    );
+    let aabb = Aabb3::new(Vec3::new(-20., 30., 5.), Vec3::new(10., -10., -5.));
     assert_eq!(aabb.min(), Vec3::new(-20., -10., -5.));
     assert_eq!(aabb.max(), Vec3::new(10., 30., 5.));
     assert_eq!(aabb.dim(), Vec3::new(30., 40., 10.));
@@ -28,34 +25,22 @@ fn test_general() {
 
     assert_eq!(
         aabb.add_v(Vec3::new(1., 2., 3.)),
-        Aabb3::new(
-            Vec3::new(-19., 32., 8.),
-            Vec3::new(11., -8., -2.),
-        )
+        Aabb3::new(Vec3::new(-19., 32., 8.), Vec3::new(11., -8., -2.),)
     );
 
     assert_eq!(
         aabb.mul_s(2.),
-        Aabb3::new(
-            Vec3::new(-40., -20., -10.),
-            Vec3::new(20., 60., 10.),
-        )
+        Aabb3::new(Vec3::new(-40., -20., -10.), Vec3::new(20., 60., 10.),)
     );
 
     assert_eq!(
         aabb.mul_v(Vec3::new(1., 2., 3.)),
-        Aabb3::new(
-            Vec3::new(-20., -20., -15.),
-            Vec3::new(10., 60., 15.),
-        )
+        Aabb3::new(Vec3::new(-20., -20., -15.), Vec3::new(10., 60., 15.),)
     );
 
     assert_eq!(
         aabb.add_margin(Vec3::new(2., 2., 2.)),
-        Aabb3::new(
-            Vec3::new(-22., -12., -7.),
-            Vec3::new(12., 32., 7.),
-        )
+        Aabb3::new(Vec3::new(-22., -12., -7.), Vec3::new(12., 32., 7.),)
     );
 }
 
@@ -65,10 +50,7 @@ fn test_parallel_ray_should_not_intersect() {
     let ray_x = Ray::new(Vec3::new(0.0f32, 0.0, 0.0), Vec3::new(1.0, 0.0, 0.0));
     let ray_y = Ray::new(Vec3::new(0.0f32, 0.0, 0.0), Vec3::new(0.0, 1.0, 0.0));
     let ray_z = Ray::new(Vec3::new(0.0f32, 0.0, 0.0), Vec3::new(0.0, 0.0, 1.0));
-    let ray_z_imprecise = Ray::new(
-        Vec3::new(0.0f32, 0.0, 0.0),
-        Vec3::new(0.0001, 0.0001, 1.0),
-    );
+    let ray_z_imprecise = Ray::new(Vec3::new(0.0f32, 0.0, 0.0), Vec3::new(0.0001, 0.0001, 1.0));
 
     assert_eq!(ray_x.intersection(&aabb), None);
     assert!(!ray_x.intersects(&aabb));
@@ -98,18 +80,9 @@ fn test_oblique_ray_should_intersect() {
 #[test]
 fn test_pointing_to_other_dir_ray_should_not_intersect() {
     let aabb = Aabb3::new(Vec3::new(1.0, 1.0, 1.0), Vec3::new(5.0, 5.0, 5.0));
-    let ray_x = Ray::new(
-        Vec3::new(0.0f32, 2.0, 2.0),
-        Vec3::new(-1.0, 0.01, 0.01),
-    );
-    let ray_y = Ray::new(
-        Vec3::new(2.0f32, 0.0, 2.0),
-        Vec3::new(0.01, -1.0, 0.01),
-    );
-    let ray_z = Ray::new(
-        Vec3::new(2.0f32, 2.0, 0.0),
-        Vec3::new(0.01, 0.01, -1.0),
-    );
+    let ray_x = Ray::new(Vec3::new(0.0f32, 2.0, 2.0), Vec3::new(-1.0, 0.01, 0.01));
+    let ray_y = Ray::new(Vec3::new(2.0f32, 0.0, 2.0), Vec3::new(0.01, -1.0, 0.01));
+    let ray_z = Ray::new(Vec3::new(2.0f32, 2.0, 0.0), Vec3::new(0.01, 0.01, -1.0));
 
     let ray_x2 = Ray::new(Vec3::new(6.0f32, 2.0, 2.0), Vec3::new(1.0, 0.0, 0.0));
     let ray_y2 = Ray::new(Vec3::new(2.0f32, 6.0, 2.0), Vec3::new(0.0, 1.0, 0.0));
@@ -158,10 +131,7 @@ fn test_pointing_to_box_dir_ray_should_intersect() {
 
 #[test]
 fn test_corners() {
-    let corners = Aabb3::new(
-        Vec3::new(-20., 30., 5.),
-        Vec3::new(10., -10., -5.),
-    ).to_corners();
+    let corners = Aabb3::new(Vec3::new(-20., 30., 5.), Vec3::new(10., -10., -5.)).to_corners();
     assert!(corners.contains(&Vec3::new(-20., 30., -5.)));
     assert!(corners.contains(&Vec3::new(10., 30., 5.)));
     assert!(corners.contains(&Vec3::new(10., -10., 5.)));
@@ -170,12 +140,9 @@ fn test_corners() {
 #[test]
 fn test_bound() {
     let aabb = Aabb3::new(Vec3::new(-5.0f32, 5.0, 0.0), Vec3::new(5.0, 10.0, 1.0));
-    let plane1 =
-        Plane::from_point_normal(Vec3::new(0f32, 0.0, 0.0), Vec3::new(0f32, 0.0, 1.0));
-    let plane2 =
-        Plane::from_point_normal(Vec3::new(-5.0f32, 4.0, 0.0), Vec3::new(0f32, 1.0, 0.0));
-    let plane3 =
-        Plane::from_point_normal(Vec3::new(6.0f32, 0.0, 0.0), Vec3::new(1f32, 0.0, 0.0));
+    let plane1 = Plane::from_point_normal(Vec3::new(0f32, 0.0, 0.0), Vec3::new(0f32, 0.0, 1.0));
+    let plane2 = Plane::from_point_normal(Vec3::new(-5.0f32, 4.0, 0.0), Vec3::new(0f32, 1.0, 0.0));
+    let plane3 = Plane::from_point_normal(Vec3::new(6.0f32, 0.0, 0.0), Vec3::new(1f32, 0.0, 0.0));
     assert_eq!(aabb.relate_plane(plane1), Relation::Cross);
     assert_eq!(aabb.relate_plane(plane2), Relation::In);
     assert_eq!(aabb.relate_plane(plane3), Relation::Out);
@@ -363,7 +330,11 @@ fn test_aabb3_surface_area() {
 #[test]
 fn test_aabb3_transform() {
     let aabb = Aabb3::new(Vec3::new(0., 0., 0.), Vec3::new(10., 20., 30.));
-    let transform = Mat4::from_scale_rotation_translation(Vec3::splat(1.), Quat::from_rotation_z(0.0_f32.to_radians()), Vec3::new(5., 3., 1.));
+    let transform = Mat4::from_scale_rotation_translation(
+        Vec3::splat(1.),
+        Quat::from_rotation_z(0.0_f32.to_radians()),
+        Vec3::new(5., 3., 1.),
+    );
     assert_eq!(
         Aabb3::new(Vec3::new(5., 3., 1.), Vec3::new(15., 23., 31.)),
         aabb.transform(&transform)

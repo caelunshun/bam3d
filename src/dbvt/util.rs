@@ -111,10 +111,7 @@ where
 /// ### Returns
 ///
 /// Returns all values that intersected the ray, and also at which point the intersections occurred.
-pub fn query_ray<'a, T: 'a>(
-    tree: &'a DynamicBoundingVolumeTree<T>,
-    ray: Ray,
-) -> Vec<(&'a T, Vec3)>
+pub fn query_ray<'a, T: 'a>(tree: &'a DynamicBoundingVolumeTree<T>, ray: Ray) -> Vec<(&'a T, Vec3)>
 where
     T: TreeValue,
     T::Bound: Clone

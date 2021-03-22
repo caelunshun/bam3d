@@ -3,7 +3,7 @@
 use std::marker;
 use std::ops::Range;
 
-use glam::{Vec3, Mat4};
+use glam::{Mat4, Vec3};
 
 use crate::{ray::Ray, traits::*};
 
@@ -35,7 +35,6 @@ impl Default for Particle {
     }
 }
 
-
 impl<C> Discrete<(Particle, Range<Vec3>)> for C
 where
     C: Continuous<Ray, Result = Vec3>,
@@ -53,7 +52,7 @@ where
 impl Discrete<Ray> for Particle {
     /// Ray needs to be in particle object space
     fn intersects(&self, ray: &Ray) -> bool {
-        Vec3::zero().intersects(ray)
+        Vec3::ZERO.intersects(ray)
     }
 }
 
@@ -62,15 +61,13 @@ impl Continuous<Ray> for Particle {
 
     /// Ray needs to be in particle object space
     fn intersection(&self, ray: &Ray) -> Option<Vec3> {
-        Vec3::zero().intersection(ray)
+        Vec3::ZERO.intersection(ray)
     }
 }
 
-
-
-impl<C> DiscreteTransformed<(Particle, Range<Vec3>)> for C 
+impl<C> DiscreteTransformed<(Particle, Range<Vec3>)> for C
 where
-    C: ContinuousTransformed<Ray>
+    C: ContinuousTransformed<Ray>,
 {
     fn intersects_transformed(
         &self,
@@ -88,7 +85,7 @@ where
 
 impl<C> Continuous<(Particle, Range<Vec3>)> for C
 where
-    C: Continuous<Ray, Result = Vec3> 
+    C: Continuous<Ray, Result = Vec3>,
 {
     type Result = Vec3;
 
@@ -105,9 +102,9 @@ where
     }
 }
 
-impl<C> ContinuousTransformed<(Particle, Range<Vec3>)> for C 
+impl<C> ContinuousTransformed<(Particle, Range<Vec3>)> for C
 where
-    C: ContinuousTransformed<Ray> 
+    C: ContinuousTransformed<Ray>,
 {
     fn intersection_transformed(
         &self,

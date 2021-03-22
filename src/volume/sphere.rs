@@ -1,8 +1,8 @@
 //! Bounding sphere
 
-use glam::{Vec3, Mat4};
+use glam::{Mat4, Vec3};
 
-use crate::{Aabb3, line::Line, plane::Plane, ray::Ray, bound::*, traits::*, volume::Aabb};
+use crate::{bound::*, line::Line, plane::Plane, ray::Ray, traits::*, volume::Aabb, Aabb3};
 
 /// Bounding sphere.
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -15,7 +15,6 @@ pub struct Sphere {
 }
 
 impl Bound for Sphere {
-
     fn min_extent(&self) -> Vec3 {
         self.center + Vec3::splat(-self.radius)
     }
@@ -25,7 +24,7 @@ impl Bound for Sphere {
     }
 
     fn with_margin(&self, add: Vec3) -> Self {
-        let max = add.x().max(add.y()).max(add.z());
+        let max = add.x.max(add.y).max(add.z);
         Sphere {
             center: self.center,
             radius: self.radius + max,
@@ -41,7 +40,7 @@ impl Bound for Sphere {
 
     fn empty() -> Self {
         Self {
-            center: Vec3::zero(),
+            center: Vec3::ZERO,
             radius: 0.,
         }
     }
@@ -190,7 +189,6 @@ impl Union<Aabb3> for Sphere {
 }
 
 impl SurfaceArea for Sphere {
-
     fn surface_area(&self) -> f32 {
         4. * std::f32::consts::PI * self.radius * self.radius
     }

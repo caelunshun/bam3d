@@ -9,9 +9,9 @@ pub use self::primitive3::Primitive3;
 pub use self::quad::Quad;
 pub use self::sphere::Sphere;
 
-mod cylinder;
 mod capsule;
 mod cuboid;
+mod cylinder;
 mod particle;
 mod polyhedron;
 mod primitive3;
@@ -20,7 +20,7 @@ mod sphere;
 
 pub(crate) mod util;
 
-use glam::{Vec3, Mat4};
+use glam::{Mat4, Vec3};
 
 pub use crate::bound::{PlaneBound, Relation};
 pub use crate::traits::*;
@@ -43,11 +43,7 @@ where
     P: Primitive,
     B: Bound,
 {
-    fn support_point(
-        &self,
-        direction: &Vec3,
-        transform: &Mat4,
-    ) -> Vec3 {
+    fn support_point(&self, direction: &Vec3, transform: &Mat4) -> Vec3 {
         self.0.support_point(direction, transform)
     }
 }

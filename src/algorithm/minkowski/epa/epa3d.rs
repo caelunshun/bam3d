@@ -1,7 +1,7 @@
-use glam::{Vec3, Mat4};
+use glam::{Mat4, Vec3};
 
-use super::*;
 use super::SupportPoint;
+use super::*;
 use crate::{contact::CollisionStrategy, contact::Contact, primitive::util::barycentric_vector};
 
 /// EPA algorithm implementation for 3D. Only to be used in [`GJK`](struct.GJK.html).
@@ -12,7 +12,6 @@ pub struct EPA3 {
 }
 
 impl EPA for EPA3 {
-
     fn process<SL, SR>(
         &self,
         mut simplex: &mut Vec<SupportPoint>,
@@ -20,10 +19,10 @@ impl EPA for EPA3 {
         left_transform: &Mat4,
         right: &SR,
         right_transform: &Mat4,
-    ) -> Option<Contact> 
+    ) -> Option<Contact>
     where
         SL: Primitive,
-        SR: Primitive
+        SR: Primitive,
     {
         if simplex.len() < 4 {
             return None;
@@ -55,10 +54,7 @@ impl EPA for EPA3 {
         Self::new_with_tolerance(EPA_TOLERANCE, MAX_ITERATIONS)
     }
 
-    fn new_with_tolerance(
-        tolerance: f32,
-        max_iterations: u32,
-    ) -> Self {
+    fn new_with_tolerance(tolerance: f32, max_iterations: u32) -> Self {
         Self {
             tolerance,
             max_iterations,
@@ -191,8 +187,8 @@ fn remove_or_add_edge(edges: &mut Vec<(usize, usize)>, edge: (usize, usize)) {
 
 #[cfg(test)]
 mod tests {
-    use glam::{Mat4, Quat, Vec3};
     use crate::primitive::Cuboid;
+    use glam::{Mat4, Quat, Vec3};
 
     use super::*;
 
@@ -232,7 +228,16 @@ mod tests {
             0.218_217_88,
             1.091_089_4,
         );
-        assert_face(&faces[1], 3, 1, 0, 0., -0.894_427_24, 0.447_213_62, 2.236_068);
+        assert_face(
+            &faces[1],
+            3,
+            1,
+            0,
+            0.,
+            -0.894_427_24,
+            0.447_213_62,
+            2.236_068,
+        );
         assert_face(
             &faces[2],
             3,
@@ -302,20 +307,11 @@ mod tests {
     }
 
     #[allow(clippy::too_many_arguments)]
-    fn assert_face(
-        face: &Face,
-        a: usize,
-        b: usize,
-        c: usize,
-        nx: f32,
-        ny: f32,
-        nz: f32,
-        d: f32,
-    ) {
+    fn assert_face(face: &Face, a: usize, b: usize, c: usize, nx: f32, ny: f32, nz: f32, d: f32) {
         assert_eq!([a, b, c], face.vertices);
-        assert_eq!(nx, face.normal.x());
-        assert_eq!(ny, face.normal.y());
-        assert_eq!(nz, face.normal.z());
+        assert_eq!(nx, face.normal.x);
+        assert_eq!(ny, face.normal.y);
+        assert_eq!(nz, face.normal.z);
         assert_eq!(d, face.distance);
     }
 
@@ -325,12 +321,7 @@ mod tests {
         s
     }
 
-    fn transform_3d(
-        x: f32,
-        y: f32,
-        z: f32,
-        angle_z: f32,
-    ) -> Mat4 {
+    fn transform_3d(x: f32, y: f32, z: f32, angle_z: f32) -> Mat4 {
         let scale = Vec3::splat(1.);
         let rot = Quat::from_rotation_z(angle_z.to_radians());
         let tran = Vec3::new(x, y, z);

@@ -2,13 +2,13 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 
 use bit_set::BitSet;
-use glam::{Vec3, Mat4};
+use glam::{Mat4, Vec3};
 
-use crate::{Aabb3, plane::Plane, ray::Ray, traits::*};
-use crate::primitive::{Primitive, util::barycentric_point};
+use crate::primitive::{util::barycentric_point, Primitive};
 use crate::volume::Sphere;
+use crate::{plane::Plane, ray::Ray, traits::*, Aabb3};
 
-use crate::volume::{Aabb};
+use crate::volume::Aabb;
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -114,10 +114,7 @@ impl ConvexPolyhedron {
 
     /// Create a new convex polyhedron from the given vertices and faces. Will remove any duplicate
     /// vertices.
-    pub fn new_with_faces_dedup(
-        vertices: Vec<Vec3>,
-        faces: Vec<(usize, usize, usize)>,
-    ) -> Self {
+    pub fn new_with_faces_dedup(vertices: Vec<Vec3>, faces: Vec<(usize, usize, usize)>) -> Self {
         let (vertices, map) = dedup_vertices(&vertices);
         Self::new_with_faces(vertices, dedup_faces(&faces, &map))
     }
@@ -133,11 +130,12 @@ impl ConvexPolyhedron {
 
     #[inline]
     fn brute_force_support_point(&self, direction: Vec3) -> Vec3 {
-        let (p, _) = self.vertices
+        let (p, _) = self
+            .vertices
             .iter()
             .map(|v| (v.position, v.position.dot(direction)))
             .fold(
-                (Vec3::zero(), f32::NEG_INFINITY),
+                (Vec3::ZERO, f32::NEG_INFINITY),
                 |(max_p, max_dot), (v, dot)| {
                     if dot > max_dot {
                         (v, dot)
@@ -267,7 +265,8 @@ fn build_half_edges(
                 vertices[a].position,
                 vertices[b].position,
                 vertices[c].position,
-            ).unwrap(),
+            )
+            .unwrap(),
             ready: false,
         };
         let face_index = faces.len();
@@ -342,13 +341,13 @@ fn build_half_edges(
 impl Primitive for ConvexPolyhedron {
     fn support_point(&self, direction: &Vec3, transform: &Mat4) -> Vec3 {
         let p = match self.mode {
-            PolyhedronMode::VertexOnly => self.brute_force_support_point(
-                transform.inverse().transform_vector3(*direction),
-            ),
+            PolyhedronMode::VertexOnly => {
+                self.brute_force_support_point(transform.inverse().transform_vector3(*direction))
+            }
 
-            PolyhedronMode::HalfEdge => self.hill_climb_support_point(
-                transform.inverse().transform_vector3(*direction),
-            ),
+            PolyhedronMode::HalfEdge => {
+                self.hill_climb_support_point(transform.inverse().transform_vector3(*direction))
+            }
         };
         transform.transform_point3(p)
     }
@@ -363,14 +362,14 @@ impl ComputeBound<Aabb3> for ConvexPolyhedron {
 impl ComputeBound<Sphere> for ConvexPolyhedron {
     fn compute_bound(&self) -> Sphere {
         Sphere {
-            center: Vec3::zero(),
+            center: Vec3::ZERO,
             radius: self.max_extent,
         }
     }
 }
 
 /// TODO: better algorithm for finding faces to intersect with?
-impl Discrete<Ray> for ConvexPolyhedron{
+impl Discrete<Ray> for ConvexPolyhedron {
     /// Ray must be in object space
     fn intersects(&self, ray: &Ray) -> bool {
         find_intersecting_face(self, ray).is_some()
@@ -387,7 +386,8 @@ impl Continuous<Ray> for ConvexPolyhedron {
             let v0 = f.vertices.0;
             let v1 = f.vertices.1;
             let v2 = f.vertices.2;
-            let p = (self.vertices[v0].position * u) + (self.vertices[v1].position * v)
+            let p = (self.vertices[v0].position * u)
+                + (self.vertices[v1].position * v)
                 + (self.vertices[v2].position * w);
             Some(p)
         })
@@ -524,10 +524,10 @@ fn intersect_ray_face(
 #[cfg(test)]
 mod tests {
 
-    use glam::{Vec3, Mat4, Quat};
+    use glam::{Mat4, Quat, Vec3};
 
     use super::ConvexPolyhedron;
-    use crate::{Aabb3, ray::Ray, traits::*};
+    use crate::{ray::Ray, traits::*, Aabb3};
 
     #[test]
     fn test_polytope_half_edge() {
@@ -634,9 +634,9 @@ mod tests {
         let polytope = ConvexPolyhedron::new_with_faces(vertices, faces);
         let ray = Ray::new(Vec3::new(0.25, 5., 0.25), Vec3::new(0., -1., 0.));
         let p = polytope.intersection(&ray).unwrap();
-        assert!((p.x() - 0.250_000_18).abs() < std::f32::EPSILON);
-        assert!((p.y() - 0.499_999_7).abs() < std::f32::EPSILON);
-        assert!((p.z() - 0.250_000_18).abs() < std::f32::EPSILON);
+        assert!((p.x - 0.250_000_18).abs() < std::f32::EPSILON);
+        assert!((p.y - 0.499_999_7).abs() < std::f32::EPSILON);
+        assert!((p.z - 0.250_000_18).abs() < std::f32::EPSILON);
         let ray = Ray::new(Vec3::new(0.5, 5., 0.5), Vec3::new(0., 1., 0.));
         assert_eq!(None, polytope.intersection(&ray));
         let ray = Ray::new(Vec3::new(0., 5., 0.), Vec3::new(0., -1., 0.));
@@ -656,22 +656,22 @@ mod tests {
         let t = transform(0., 0., 0., 0.);
         let ray = Ray::new(Vec3::new(0.25, 5., 0.25), Vec3::new(0., -1., 0.));
         let p = polytope.intersection_transformed(&ray, &t).unwrap();
-        assert!((p.x() - 0.250_000_18).abs() < std::f32::EPSILON);
-        assert!((p.y() - 0.499_999_7).abs() < std::f32::EPSILON);
-        assert!((p.z() - 0.250_000_18).abs() < std::f32::EPSILON);
+        assert!((p.x - 0.250_000_18).abs() < std::f32::EPSILON);
+        assert!((p.y - 0.499_999_7).abs() < std::f32::EPSILON);
+        assert!((p.z - 0.250_000_18).abs() < std::f32::EPSILON);
         let ray = Ray::new(Vec3::new(0.5, 5., 0.5), Vec3::new(0., 1., 0.));
         assert_eq!(None, polytope.intersection_transformed(&ray, &t));
         let t = transform(0., 1., 0., 0.);
         let ray = Ray::new(Vec3::new(0.25, 5., 0.25), Vec3::new(0., -1., 0.));
         let p = polytope.intersection_transformed(&ray, &t).unwrap();
-        assert!((p.x() - 0.250_000_18).abs() < std::f32::EPSILON);
-        assert!((p.y() - 1.499_999_8).abs() < std::f32::EPSILON);
-        assert!((p.z() - 0.250_000_18).abs() < std::f32::EPSILON);
+        assert!((p.x - 0.250_000_18).abs() < std::f32::EPSILON);
+        assert!((p.y - 1.499_999_8).abs() < std::f32::EPSILON);
+        assert!((p.z - 0.250_000_18).abs() < std::f32::EPSILON);
         let t = transform(0., 0., 0., 0.3);
         let p = polytope.intersection_transformed(&ray, &t).unwrap();
-        assert!((p.x() - 0.2500002).abs() < std::f32::EPSILON);
-        assert!((p.y() - 0.498_707_7).abs() < std::f32::EPSILON);
-        assert!((p.z() - 0.250_000_12).abs() < std::f32::EPSILON);
+        assert!((p.x - 0.2500002).abs() < std::f32::EPSILON);
+        assert!((p.y - 0.498_707_7).abs() < std::f32::EPSILON);
+        assert!((p.z - 0.250_000_12).abs() < std::f32::EPSILON);
     }
 
     #[test]

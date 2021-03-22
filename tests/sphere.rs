@@ -1,8 +1,8 @@
-extern crate glam;
 extern crate bam3d;
+extern crate glam;
 
-use glam::{Vec3};
 use bam3d::*;
+use glam::Vec3;
 
 #[test]
 fn test_intersection() {
@@ -26,10 +26,7 @@ fn test_intersection() {
         Vec3::new(2f32, 0f32, 5f32),
         Vec3::new(0f32, 0f32, -5f32).normalize(),
     );
-    assert_eq!(
-        sphere.intersection(&r0),
-        Some(Vec3::new(0f32, 0f32, 1f32))
-    );
+    assert_eq!(sphere.intersection(&r0), Some(Vec3::new(0f32, 0f32, 1f32)));
     assert!(sphere.intersects(&r0));
     // TODO: z off a tiny bit. Floating point error?
     // assert_eq!(
@@ -37,10 +34,7 @@ fn test_intersection() {
     //     Vec3::new(1f32.cos(), 0f32, 1f32.sin())
     // );
     assert!(sphere.intersects(&r1));
-    assert_eq!(
-        sphere.intersection(&r2),
-        Some(Vec3::new(1f32, 0f32, 0f32))
-    );
+    assert_eq!(sphere.intersection(&r2), Some(Vec3::new(1f32, 0f32, 0f32)));
     assert!(sphere.intersects(&r2));
     assert_eq!(sphere.intersection(&r3), None);
     assert!(!sphere.intersects(&r3));

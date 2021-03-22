@@ -1,6 +1,6 @@
-use glam::{Vec3, Mat4};
+use glam::{Mat4, Vec3};
 
-use crate::{Aabb3, ray::Ray, traits::*};
+use crate::{ray::Ray, traits::*, Aabb3};
 
 /// Sphere primitive
 #[derive(Debug, Clone, PartialEq)]
@@ -20,23 +20,20 @@ impl Sphere {
 impl Primitive for Sphere {
     fn support_point(&self, direction: &Vec3, transform: &Mat4) -> Vec3 {
         let direction = transform.inverse().transform_vector3(*direction);
-        transform.transform_point3(direction * (self.radius/(direction.dot(direction)).sqrt()))
+        transform.transform_point3(direction * (self.radius / (direction.dot(direction)).sqrt()))
     }
 }
 
 impl ComputeBound<Aabb3> for Sphere {
     fn compute_bound(&self) -> Aabb3 {
-        Aabb3::new(
-            Vec3::splat(-self.radius),
-            Vec3::splat(self.radius),
-        )
+        Aabb3::new(Vec3::splat(-self.radius), Vec3::splat(self.radius))
     }
 }
 
 impl ComputeBound<crate::volume::Sphere> for Sphere {
     fn compute_bound(&self) -> crate::volume::Sphere {
         crate::volume::Sphere {
-            center: Vec3::zero(),
+            center: Vec3::ZERO,
             radius: self.radius,
         }
     }
@@ -45,7 +42,7 @@ impl ComputeBound<crate::volume::Sphere> for Sphere {
 impl Discrete<Ray> for Sphere {
     fn intersects(&self, r: &Ray) -> bool {
         let s = self;
-        let l = Vec3::new(-r.origin.x(), -r.origin.y(), -r.origin.z());
+        let l = Vec3::new(-r.origin.x, -r.origin.y, -r.origin.z);
         let tca = l.dot(r.direction);
         if tca < 0. {
             return false;
@@ -61,7 +58,7 @@ impl Continuous<Ray> for Sphere {
     fn intersection(&self, r: &Ray) -> Option<Vec3> {
         let s = self;
 
-        let l = Vec3::new(-r.origin.x(), -r.origin.y(), -r.origin.z());
+        let l = Vec3::new(-r.origin.x, -r.origin.y, -r.origin.z);
         let tca = l.dot(r.direction);
         if tca < 0. {
             return None;
@@ -77,7 +74,7 @@ impl Continuous<Ray> for Sphere {
 
 #[cfg(test)]
 mod tests {
-    use glam::{Vec3, Mat4, Quat};
+    use glam::{Mat4, Quat, Vec3};
 
     use super::*;
 
@@ -89,28 +86,12 @@ mod tests {
 
     #[test]
     fn test_sphere_support_2() {
-        test_sphere_support(
-            1.,
-            1.,
-            1.,
-            5.773_503,
-            5.773_503,
-            5.773_503,
-            0.,
-        );
+        test_sphere_support(1., 1., 1., 5.773_503, 5.773_503, 5.773_503, 0.);
     }
 
     #[test]
     fn test_sphere_support_3() {
-        test_sphere_support(
-            1.,
-            0.,
-            0.,
-            10.,
-            0.,
-            0.,
-            -std::f32::consts::PI / 4.,
-        );
+        test_sphere_support(1., 0., 0., 10., 0., 0., -std::f32::consts::PI / 4.);
     }
 
     #[test]
@@ -187,9 +168,9 @@ mod tests {
         let direction = Vec3::new(dx, dy, dz);
         let t = transform(0., 0., 0., rot);
         let point = sphere.support_point(&direction, &t);
-        assert_eq!(px, point.x());
-        assert_eq!(py, point.y());
-        assert_eq!(pz, point.z());
+        assert_eq!(px, point.x);
+        assert_eq!(py, point.y);
+        assert_eq!(pz, point.z);
     }
 
     // util
